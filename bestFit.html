@@ -1,0 +1,78 @@
+<html>
+  <head>
+    <!-- TensorFlow.js version 0.11.2 -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@0.11.2"> </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.min.js"> </script>
+  </head>
+  <body>
+    <h3>Input your data and let TensorFlow give a best-fit line predict</h3>
+    x: <input type="text" id="x" />
+    y: <input type="text" id="y" />
+
+    <input type="button" id="append" value="submit">
+
+    <div style="padding:50px">
+        <canvas id="graph" width="80%" height="50%"></canvas>
+    </div>
+
+    <script>
+        var xs = [] // Initialized blank
+        var ys = [] // Initialized blank
+        var bestfit = [] //
+
+        //Create our  model
+		//Decide if you want to use a ReLU layers  or a dense to activate with some sort of sigmoid function.
+/*
+        const model = tf.sequential(); //use a sequential tf model
+        model.add(tf.layers.leakyReLU({units: 128, inputShape: [1]})); // add layer 1
+        model.add(tf.layers.leakyReLU({units: 128, inputShape: [128]})); // add layer 2
+        model.add(tf.layers.dense({units: 1, inputShape: [128]})); // output layer
+        model.compile({loss: 'meanSquaredError', optimizer: 'adam'}); // compile with params
+*/
+
+/*
+		const model = tf.sequential();
+		model.add(tf.layers.dense({units: 128, inputShape: [1]})); // layer 1
+		model.add(tf.layers.dense({units: 128, inputShape: [128], activation: "sigmoid"})); // layer 2
+		model.add(tf.layers.dense({units: 1, inputShape: [128]})); // output layer
+		model.compile({loss: 'meanSquaredError', optimizer: 'adam'}); // compile with params
+        document.getElementById('x').value = 1; // set the starting value for  x
+*/
+		
+		
+        // the append id is given to the submit button
+        document.getElementById("append").onclick = function(){
+            var x = document.getElementById("x").value; // grab the current value for x
+            var y = document.getElementById("y").value; // grab the current value for y
+            xs.push(x) // append that value to the xs
+            ys.push(y) // append that value to the ys
+            document.getElementById('x').value = parseInt(x)+1; // add 1 to the x automatically
+
+            // Train the model:
+            model.fit(tf.tensor(xs), tf.tensor(ys), {epochs:150}).then(() => { //set the values, Epochs to x
+                bestfit = model.predict(tf.tensor(xs, [xs.length, 1])).dataSync(); // create best-fit line from xs data
+                var ctx = document.getElementById("graph").getContext('2d'); // begin chart
+                var graph = new Chart(ctx, {
+                    type: 'line',
+                    options: {scales:{yAxes: [{ticks: {beginAtZero: true}}]}},
+                    data: {
+                        labels: xs,
+                        datasets: [
+                        {
+                            label: 'Original Data',
+                            data: ys,
+                            borderWidth: 1,
+                        },{
+                            label: 'Best Fit line',
+                            data: bestfit,
+                            borderWidth: 1,
+                            borderColor: '#FF0000',
+                            backgroundColor: 'rgba(1,1,1,0)'
+                        },]
+                    },
+                });
+              });
+        }
+    </script>
+  </body>
+</html>
